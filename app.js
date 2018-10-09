@@ -93,6 +93,28 @@ bot.dialog('GetSentimentDialog',
     matches: 'GetSentiment'
 })
 
+bot.dialog('GetTweetDialog',
+    (session) => {
+        axios.get('https://xylosinspire2018.azurewebsites.net/api/LastTweet')
+            .then(function(response){
+                var sender=response.data.sender;
+                var tweet=response.data.text;
+                
+                var responseText=util.format("This is the last tweet by %s. %s", sender, tweet);
+                session.say(responseText, responseText);
+                session.endDialog();
+            })
+            .catch(function(error){
+                console.log(error);
+                session.endDialog();
+            });
+        
+        
+    }
+).triggerAction({
+    matches: 'GetTweet'
+})
+
 bot.dialog('HelpDialog',
     (session) => {
         var responseText = 'Calling 9 1 1 now!';
