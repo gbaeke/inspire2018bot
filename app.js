@@ -78,7 +78,7 @@ bot.dialog('GetSentimentDialog',
                     sentiment='great news';
                 }
                 
-                var responseText=util.format("The average sentiment score is %s which is %s.", Math.round(score*100) / 100, sentiment);
+                var responseText=util.format("The average sentiment score is %s, which is %s.", Math.round(score*100) / 100, sentiment);
                 session.say(responseText, responseText);
                 session.endDialog();
             })
@@ -95,7 +95,8 @@ bot.dialog('GetSentimentDialog',
 
 bot.dialog('HelpDialog',
     (session) => {
-        session.send('You reached the Help intent. Do you really need help? You said \'%s\'.', session.message.text);
+        var responseText = 'Calling 9 1 1 now!';
+        session.say(responseText, responseText);
         session.endDialog();
     }
 ).triggerAction({
