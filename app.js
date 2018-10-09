@@ -5,6 +5,7 @@ A simple Language Understanding (LUIS) bot for the Microsoft Bot Framework.
 var restify = require('restify');
 var builder = require('botbuilder');
 var botbuilder_azure = require("botbuilder-azure");
+var axios=require('axios');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -18,6 +19,7 @@ var connector = new builder.ChatConnector({
     appPassword: process.env.MicrosoftAppPassword,
     openIdMetadata: process.env.BotOpenIdMetadata 
 });
+
 
 // Listen for messages from users 
 server.post('/api/messages', connector.listen());
@@ -61,6 +63,31 @@ bot.dialog('GreetingDialog',
     }
 ).triggerAction({
     matches: 'Greeting'
+})
+
+bot.dialog('GetSentimentDialog',
+    (session) => {
+        axios.get('https://xylosinspire2018.azurewebsites.net/api/AverageSentiment')
+            .then(function(response){
+                var score=response.data.score;
+                var sentiment='just ok';
+                if(score < 0.5) {
+                    sentiment='bad news';
+                } else if (score > 0.5) {
+                    sentiment='great news';
+                }
+                session.send('The average sentiment score is \'%.2f\' which is %s.', score, sentiment);
+                session.endDialog();
+            })
+            .catch(function(error){
+                console.log(error);
+                session.endDialog();
+            });
+        // session.send('You reached the GetSentiment intent! You said \'%f\'.', session.message.text);
+        
+    }
+).triggerAction({
+    matches: 'GetSentiment'
 })
 
 bot.dialog('HelpDialog',
