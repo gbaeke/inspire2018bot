@@ -67,27 +67,39 @@ bot.dialog('GreetingDialog',
 })
 
 bot.dialog('GetSentimentDialog',
-    (session) => {
-        axios.get('https://xylosinspire2018.azurewebsites.net/api/AverageSentiment')
-            .then(function(response){
-                var score=response.data.score;
-                var sentiment='just ok';
-                if(score < 0.5) {
-                    sentiment='bad news';
-                } else if (score > 0.5) {
-                    sentiment='great news';
-                }
+    (session, args) => {
+        var intent = args.intent;
+        var eventNameEntity = builder.EntityRecognizer.findEntity(intent.entities, 'event');
+        console.log(eventNameEntity);
+        var eventName = eventNameEntity ? eventNameEntity.entity : null;
+        console.log(eventName);
+        if(eventName == null || eventName=='inspire' || eventName=='here') {
+            console.log(eventName);
+            axios.get('https://xylosinspire2018.azurewebsites.net/api/AverageSentiment')
+                .then(function(response){
+                    var score=response.data.score;
+                    var sentiment='just ok';
+                    if(score < 0.5) {
+                        sentiment='bad news';
+                    } else if (score > 0.5) {
+                        sentiment='great news';
+                    }
+                    
+                    var responseText=util.format("The average sentiment score is %s, which is %s.", Math.round(score*100) / 100, sentiment);
+                    session.say(responseText, responseText);
+                    session.endDialog();
+                })
+                .catch(function(error){
+                    console.log(error);
+                    session.endDialog();
+                });
+        } else {
+            console.log(eventName);
+            var responseText=util.format("I don't know anything about that. I need more data!");
+            session.say(responseText, responseText);
+            session.endDialog();
+        }
                 
-                var responseText=util.format("The average sentiment score is %s, which is %s.", Math.round(score*100) / 100, sentiment);
-                session.say(responseText, responseText);
-                session.endDialog();
-            })
-            .catch(function(error){
-                console.log(error);
-                session.endDialog();
-            });
-        // session.send('You reached the GetSentiment intent! You said \'%f\'.', session.message.text);
-        
     }
 ).triggerAction({
     matches: 'GetSentiment'
@@ -127,7 +139,7 @@ bot.dialog('HelpDialog',
 
 bot.dialog('CancelDialog',
     (session) => {
-        session.send('You reached the Cancel intent. You said \'%s\'.', session.message.text);
+        session.send('What? You said: \'%s\'.', session.message.text);
         session.endDialog();
     }
 ).triggerAction({
