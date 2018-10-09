@@ -6,6 +6,7 @@ var restify = require('restify');
 var builder = require('botbuilder');
 var botbuilder_azure = require("botbuilder-azure");
 var axios=require('axios');
+var util=require('util');
 
 // Setup Restify Server
 var server = restify.createServer();
@@ -76,7 +77,9 @@ bot.dialog('GetSentimentDialog',
                 } else if (score > 0.5) {
                     sentiment='great news';
                 }
-                session.send('The average sentiment score is \'%.2f\' which is %s.', score, sentiment);
+                
+                var responseText=util.format("The average sentiment score is %s which is %s.", Math.round(score*100) / 100, sentiment);
+                session.say(responseText, responseText);
                 session.endDialog();
             })
             .catch(function(error){
